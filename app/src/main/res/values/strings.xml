@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">BMI CALCULATOR</string>
+    <string name="calculate">Calculate</string>
+    <string name="obesity3">Obesity Class III</string>
+    <string name="obesity2">Obesity Class II</string>
+    <string name="obesity1">Obesity Class I</string>
+    <string name="overweight">OverWeight</string>
+    <string name="healthy">Normal</string>
+    <string name="underweight">UnderWeight</string>
+    <string name="weight">Weight</string>
+    <string name="height">Height</string>
+    <string name="bmi">BMI:</string>
+    <string name="defBmi">0.0</string>
+    <string name="normal">Normal range is 18.5 to 24.9</string>
+
+    <string-array name="WeightUnit">
+        <item>Kg</item>
+        <item>lbs</item>
+    </string-array>
+
+    <string-array name="HeightUnit">
+        <item>Cm</item>
+        <item>ft</item>
+        <item>Meter</item>
+        <item>inch</item>
+    </string-array>
+</resources>
