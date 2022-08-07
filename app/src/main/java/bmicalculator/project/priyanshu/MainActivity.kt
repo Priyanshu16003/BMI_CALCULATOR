@@ -5,79 +5,71 @@ import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.*
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.cardview.widget.CardView
-import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
+import bmicalculator.project.priyanshu.viewmodel.MainActivityViewModel
 import java.lang.Exception
 
 
 class MainActivity : AppCompatActivity() {
+    private val lbsToKgConstant = 0.45359237
+    private val ftToMeterConstant = 0.3048
+    private val cmToMeterConstant = 0.01
+    private val inchToMeterConstant = 0.0254
+    private val meterToMeterConstant = 1.0
+    private lateinit var viewModel: MainActivityViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         val weight = findViewById<EditText>(R.id.weight)
         val height = findViewById<EditText>(R.id.height)
-
         val weightSpinner = findViewById<Spinner>(R.id.weightSpinner)
         val heightSpinner = findViewById<Spinner>(R.id.heightSpinner)
         val calculate = findViewById<Button>(R.id.calculate)
-
-        var unitWeight = "Kg"
-        var unitHeight = "Cm"
         var weightValue : Double
         var heightValue : Double
         var bmiValue  : Double
+        var heightConstant = 1.0
+        var weightConstant = 1.0
         val bmiIndex = findViewById<TextView>(R.id.bmiIndex)
         val bmi = findViewById<TextView>(R.id.bmiText)
         val bmiCard = findViewById<CardView>(R.id.bmiCard)
+        viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
 
         weightSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
             override fun onItemSelected(adapterview: AdapterView<*>?, view: View?, position: Int, id: Long) {
 
                 when(position){
-                    0 ->
-                    {
-                        unitWeight = "Kg"
-                    }
-                    1 ->
-                    {
-                        unitWeight = "lbs"
-                    }
-
+                    0 -> { weightConstant = 1.0}
+                    1 -> { weightConstant = lbsToKgConstant }
                 }
             }
-
-            override fun onNothingSelected(p0: AdapterView<*>?) {
-
-            }
+            override fun onNothingSelected(p0: AdapterView<*>?) { }
         }
 
         heightSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
             override fun onItemSelected(adapterview: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 when(position){
-                    0 ->
-                    {
-                        unitHeight = "Cm"
-                    }
-                    1 ->
-                    {
-                        unitHeight = "ft"
-                    }
-                    2 ->
-                    {
-                        unitHeight = "Meter"
-                    }
-                    3 ->
-                    {
-                        unitHeight = "inch"
-                    }
-
+                    0 -> { heightConstant = cmToMeterConstant }
+                    1 -> { heightConstant = ftToMeterConstant }
+                    2 -> { heightConstant = meterToMeterConstant}
+                    3 -> { heightConstant = inchToMeterConstant }
                 }
             }
 
-            override fun onNothingSelected(p0: AdapterView<*>?) {
-            }
+            override fun onNothingSelected(p0: AdapterView<*>?) { }
+        }
+
+        viewModel.bmiIndex.observe(this) {
+            bmiIndex.text = it.toString()
+        }
+        viewModel.bmi.observe(this) {
+            bmi.text = it.toString()
+        }
+        viewModel.bmiCard.observe(this) {
+            bmiCard.background.setTint(it)
         }
 
         calculate.setOnClickListener {
@@ -87,61 +79,12 @@ class MainActivity : AppCompatActivity() {
                 weightValue=weight.text.toString().toDouble()
                 heightValue=height.text.toString().toDouble()
 
-
-                if(unitWeight=="lbs"){
-                    weightValue *= 0.45359237
-                }
-                if (unitHeight=="ft"){
-                    heightValue *= 0.3048
-                }
-                if(unitHeight=="Cm"){
-                    heightValue *= 0.01
-                }
-                if(unitHeight=="inch"){
-                    heightValue *= 0.0254
-                }
+                weightValue *= weightConstant
+                heightValue *= heightConstant
 
                 bmiValue = weightValue / (heightValue * heightValue)
                 bmiValue="%.2f".format(bmiValue).toDouble()
-
-                when {
-                    50.0<=bmiValue -> {
-                        Toast.makeText(this,"Your BMI doesn't look right. Please check the Entered data are Correct",Toast.LENGTH_SHORT).show()
-                    }
-                    40.0<=bmiValue -> {
-                        bmiIndex.text=resources.getText(R.string.obesity3)
-                        bmi.text = bmiValue.toString()
-                        bmiCard.background.setTint(ContextCompat.getColor(this,R.color.obese3))
-                    }
-                    35.0<=bmiValue -> {
-                        bmiIndex.text=resources.getText(R.string.obesity2)
-                        bmi.text = bmiValue.toString()
-                        bmiCard.background.setTint(ContextCompat.getColor(this,R.color.obese2))
-                    }
-                    30.0<=bmiValue -> {
-                        bmiIndex.text=resources.getText(R.string.obesity1)
-                        bmi.text = bmiValue.toString()
-                        bmiCard.background.setTint(ContextCompat.getColor(this,R.color.obese1))
-                    }
-                    25.0<=bmiValue -> {
-                        bmiIndex.text=resources.getText(R.string.overweight)
-                        bmi.text = bmiValue.toString()
-                        bmiCard.background.setTint(ContextCompat.getColor(this,R.color.overweight))
-                    }
-                    18.5<=bmiValue -> {
-                        bmiIndex.text=resources.getText(R.string.healthy)
-                        bmi.text = bmiValue.toString()
-                        bmiCard.background.setTint(ContextCompat.getColor(this,R.color.healthy))
-                    }
-                    0.0 < bmiValue -> {
-                        bmiIndex.text=resources.getText(R.string.underweight)
-                        bmi.text = bmiValue.toString()
-                        bmiCard.background.setTint(ContextCompat.getColor(this,R.color.underweight))
-                    }
-                    else -> {
-                        Toast.makeText(this,"Your BMI doesn't look right. Please check the Entered data are Correct",Toast.LENGTH_SHORT).show()
-                    }
-                }
+                viewModel.updateResult(bmiValue)
             }
             catch (e : Exception){
                 e.printStackTrace()

@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:background="@color/base"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    >
 
 
     <LinearLayout
@@ -73,7 +74,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:entries="@array/WeightUnit"
-                    android:textAlignment="center" />
+                    android:textAlignment="center"
+                    />
 
             </androidx.cardview.widget.CardView>
 
